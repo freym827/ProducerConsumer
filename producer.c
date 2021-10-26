@@ -75,7 +75,10 @@ int main(int argc, char *argv[]) {
         memset(item, 0, sizeof item);
         
         printf("Enter item for the table: ");
-        fgets(item, sizeof item, stdin);
+        if(fgets(item, sizeof item, stdin) == NULL) {
+            printf("Invalid string");
+            break;
+        }
         item[strcspn(item, "\r\n")] = 0;
         if(strcmp(item, "q::") == 0) {
             break;
