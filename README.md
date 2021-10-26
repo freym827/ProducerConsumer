@@ -11,11 +11,14 @@ but the consumer program will wait for the producer program
 to set up shared memory and be ready. 
 
 The two programs are compiled as follows:
+
 $ gcc producer.c -pthread -lrt -o producer
+
 $ gcc consumer.c -pthread -lrt -o consumer
 
 In one terminal, run producer with ./producer
-In another terminal, run consumer with ./comsumer
+
+In another terminal, run consumer with ./consumer
 
 The producer program will ask for input in the form of a string.
 The producer will write the strings to shared memory. If there are 
@@ -40,3 +43,8 @@ Here we have the producer producing three items. It has to wait to produce the t
 
 The consumer can consume three times in a row. 
 ![pcprodwait2](/images/pcprodwait2.png "pcprodwait2")
+
+3)
+Here we show the consumer waiting for an item to be produced. 
+
+Once an item is produced, it is immediately consumed. 
