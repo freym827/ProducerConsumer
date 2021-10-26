@@ -57,4 +57,4 @@ Once an item is produced, it is immediately consumed.
 The two processes are set up to maintain a back and forth interaction. They will 
 continue until "q::" is pressed for the producer, and "q" is pressed for the 
 consumer. 
-
+![pcinter](/images/pcinter.png "pcinter")
