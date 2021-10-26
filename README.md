@@ -33,6 +33,7 @@ by printing out the item and removing it from memory. the consumer
 will consume one item at a time. 
 
 Examples:
+
 1)
 Here we have the consumer consuming the items as the producer produces them. 
 ![pctrade](/images/pctrade.png "pctrade")
@@ -41,10 +42,19 @@ Here we have the consumer consuming the items as the producer produces them.
 Here we have the producer producing three items. It has to wait to produce the third.
 ![pcprodwait](/images/pcprodwait.png "pcprodwait")
 
-The consumer can consume three times in a row. 
+The consumer can consume three times in a row, and the producer is allowed to produce
+after an item is consumed. 
 ![pcprodwait2](/images/pcprodwait2.png "pcprodwait2")
 
 3)
 Here we show the consumer waiting for an item to be produced. 
+![pcconswait](/images/pcconswait.png "pcconswait")
 
 Once an item is produced, it is immediately consumed. 
+![pcconswait2](/images/pcconswait2.png "pcconswait2")
+
+4)
+The two processes are set up to maintain a back and forth interaction. They will 
+continue until "q::" is pressed for the producer, and "q" is pressed for the 
+consumer. 
+
