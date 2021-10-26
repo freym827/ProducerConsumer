@@ -30,3 +30,5 @@ by printing out the item and removing it from memory. the consumer
 will consume one item at a time. 
 
 Examples:
+Here we have the consumer consuming the items as the producer produces them. 
+![pctrade](/images/pctrade.png "pctrade")
