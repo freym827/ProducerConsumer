@@ -30,5 +30,13 @@ by printing out the item and removing it from memory. the consumer
 will consume one item at a time. 
 
 Examples:
+1)
 Here we have the consumer consuming the items as the producer produces them. 
 ![pctrade](/images/pctrade.png "pctrade")
+
+2)
+Here we have the producer producing three items. It has to wait to produce the third.
+![pcprodwait](/images/pcprodwait.png "pcprodwait")
+
+The consumer can consume three times in a row. 
+![pcprodwait2](/images/pcprodwait2.png "pcprodwait2")
