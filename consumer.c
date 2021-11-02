@@ -1,5 +1,5 @@
 /*********************************************
-producer.c
+consumer.c
 Matthew Frey
 **********************************************/
 #include <stdio.h>
@@ -15,90 +15,87 @@ Matthew Frey
 
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                            } while (0)
+
 #define SEM1 "sem1"
 #define SEM2 "sem2"
 #define SEM3 "sem3"
 
 int main(int argc, char *argv[]) {
     
-    
     sem_t *doubleready = sem_open(SEM3, O_CREAT, 0660, 0);
     if(doubleready == SEM_FAILED) {
         perror("sem_open failure");
         exit(0);
     }
+    //wait for producer to set up shared memory
+    sem_wait(doubleready);
 
     const int SHAREDSIZE = 4096;
     const char *sharedmem = "sharedmem";
-    shm_unlink(sharedmem);
-    char item[2046];
-
     int fd;
     void *mmapptr;
-
-    //Set up shared memory
-    fd = shm_open(sharedmem, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
-
+    
+    //open shared memory
+    fd = shm_open(sharedmem, O_RDWR, 0);
     if (fd == -1)
        errExit("shm_open");
 
-    if (ftruncate(fd, SHAREDSIZE) == -1)
-        errExit("ftruncate");
-
     mmapptr = mmap(0, SHAREDSIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    
     if (mmapptr == MAP_FAILED)
                    errExit("mmap");
 
-    //initialize semaphores
-    sem_unlink(SEM1);
-    sem_unlink(SEM2);
+    //open semaphore
     int semval;
-    sem_t *prodwait = sem_open(SEM1, O_CREAT, 0660, 2);
+    sem_t *prodwait = sem_open(SEM1, 0);
     if(prodwait == SEM_FAILED) {
         perror("sem_open failure");
         exit(0);
     }
-    sem_t *conswait = sem_open(SEM2, O_CREAT, 0660, 0);
+    sem_t *conswait = sem_open(SEM2, 0);
     if(conswait == SEM_FAILED) {
         perror("sem_open failure");
         exit(0);
     }
 
-    //tell comsumer we are ready
-    sem_post(doubleready);
+    char test;
+    int offset = 0;
+    printf("Press 'q' to quit or...\n");
 
-    //produce items
-    int offset = 2047;
-    printf("To exit program enter 'q::'.\n");
+    //consume items
     while (1) {
-        memset(item, 0, sizeof item);
-        
-        printf("Enter item for the table: ");
-        if(fgets(item, sizeof item, stdin) == NULL) {
-            printf("Invalid string");
-            break;
-        }
-        item[strcspn(item, "\r\n")] = 0;
-        if(strcmp(item, "q::") == 0) {
+        printf("Press ENTER to consume an item...");
+        test = getchar();
+        if(test == 'q') {
             break;
         }
         
-        //check table
-        sem_wait(prodwait);
-        
-        //put item on table
-        if(strlen((char*)mmapptr) != 0) {
-            mmapptr += offset;
-            sprintf(mmapptr, "%s", (char*)item);
-            mmapptr -= offset;
-        }else {
-            sprintf(mmapptr, "%s", (char*)item);
+        //wait for producer to produce an item
+        sem_wait(conswait);
+
+        //print items and remove from memory
+        if(offset == 0) {
+            printf("%s\n", (char*)mmapptr);
+            offset = 2047;
+            memset((char*)mmapptr,0,2047);
+        }else if(offset == 2047) {
+            mmapptr += 2047;
+            if(strlen((char*)mmapptr) == 0) {
+                mmapptr -= 2047;
+                printf("%s\n", (char*)mmapptr);
+                offset = 2047;
+                memset((char*)mmapptr,0,2047);
+            }else if(strlen((char*)mmapptr) > 0) {
+                printf("%s\n", (char*)mmapptr);
+                memset((char*)mmapptr,0,2047);
+                mmapptr -= 2047;
+                offset = 0;
+            }
         }
         
-        //tell consumer an item is ready
-        sem_post(conswait);   
+        //tell producer we consumed an item
+        sem_post(prodwait);
     }
+    
     shm_unlink(sharedmem);
     sem_unlink(SEM3);
     return 0;
